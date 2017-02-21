@@ -1,0 +1,22 @@
+
+.bgc-halaya-ube {
+	margin-top: 100px;
+	background-color: #FFFFFF;
+	border: solid 1px black;
+}
+
+.left-columm-asking, #background-color-titulo{
+	background-color: #6B3457;;
+}
+.gdlr-button, input[type="button"], input[type="submit"], .btn-carrot-orange{
+    background: #F7931E !important;
+    color: #FFFFFF!important;
+}
+#toplevel_page_conasa-asking-settings ul.wp-submenu li:nth-child(2),
+#toplevel_page_conasa-asking-settings ul.wp-submenu li:nth-child(3),
+#toplevel_page_conasa-asking-settings ul.wp-submenu li:nth-child(4),
+#toplevel_page_conasa-asking-settings ul.wp-submenu li:nth-child(5),
+#toplevel_page_conasa-asking-settings ul.wp-submenu li:nth-child(6)
+{
+	display: none !important;
+}
