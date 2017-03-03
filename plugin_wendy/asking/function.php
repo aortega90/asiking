@@ -491,20 +491,23 @@ function add_2(){
         {
             $dir = site_url().'/wp-admin/admin.php?page=conasa-asking-add_2&type_data=RESPUESTA&id=';     
             $shortcodes =  "SELECT * FROM `".$wpdb->prefix.'preguntas`'." WHERE `shortcode_id` = ".$id_shorcode;
+            $image      =  "SELECT s.`pregunta_imagen` FROM `".$wpdb->prefix.'shortcode`'." as s WHERE `id` = ".$id_shorcode; 
+            $aux_ ='pregunta_imagen';
         }
         else
         {
-            $dir = site_url().'/wp-admin/admin.php?page=conasa-asking-add_3&id=';
-             
+            $dir = site_url().'/wp-admin/admin.php?page=conasa-asking-add_3&id=';   
             $shortcodes =  "SELECT * FROM `".$wpdb->prefix.'respuestas`'." WHERE `id_pregunta` = ".$id_shorcode;
+            $image      =  "SELECT  s.`respuesta_imagen` FROM `".$wpdb->prefix.'preguntas`'." as p, `".$wpdb->prefix.'shortcode`'." as s WHERE p.`shortcode_id` = s.`id` AND p.`id` = ".$id_shorcode;
+            $aux_ ='respuesta_imagen';
         }    
+
         $shortcodes = $wpdb->get_results( $shortcodes, OBJECT );
-        print_r($shortcodes);
+        $image      = $wpdb->get_results( $image, OBJECT );
+        $image      = get_object_vars($image[0]);
+        $image      = $image[$aux_];
+        echo $image;
     ?>
-     <p>
-        <input type="number" value="" class="regular-text process_custom_images" id="process_custom_images" name="" max="" min="1" step="1">
-        <button class="set_custom_images button" onclick="loadimage()">Set Image ID</button>
-    </p>
 
    <table class="wp-list-table widefat fixed striped posts" >
        
@@ -603,11 +606,12 @@ function add_2(){
                             <div class="main">
                                 <ul>
                                     <li class="post-count">
-                                        <table class="table table-hover" id="worked">
+                                        <table class="table table-hover" id="worked" style="width: 1000px;">
                                             <thead>
                                                 <tr>
                                                     <th>
-                                                        <button type="button" class="btn btn-blue add-row-question"><?php if(empty($pregunta))
+                                                        <button type="button" <?php if($image == 'Si'){echo 'value="Yes"';  }?> 
+                                                        id="botton-less" class="btn btn-blue add-row-question"><?php if(empty($pregunta))
                                                         {
                                                             echo 'Nueva Pregunta';
                                                         }
@@ -622,7 +626,12 @@ function add_2(){
                                             <tbody>
                                                 <tr>
                                                     <td>
-                                                        <input name="answer_1[]" placeholder="Escriba una pregunta" class="form-control" type="text">
+                                                        <input name="answer_1[]" placeholder="Escriba una pregunta" class="form-control" type="text">&emsp;
+                                                        <?php if($image == 'Si'){ ?>
+
+                                                            <input type="number" value="" class="regular-text process_custom_images" id="process_custom_images" name="image_1[]" max="" min="1" step="1">
+                                                            <button class="set_custom_images button" onclick="loadimage()">Set Image ID</button>
+                                                        <?php }?>
                                                         
                                                     </td>
                                                 </tr>                     
@@ -651,7 +660,7 @@ function add_2(){
      $(document).ready(function(){
              var count_question = 1;
              var countanswer   = 0;   
-
+             var elem =  $("#botton-less").attr("value");
              
             $('.new-question .add-question').click(function () {
                     countanswer++;
@@ -661,9 +670,14 @@ function add_2(){
             
             
             // Control de respuestas
-            $('#worked .add-row-question').click(function () {
+             $('#worked .add-row-question').click(function () {
                     countanswer++;
-                var template = '<tr><td><input name="answer_'+count_question+'[]" class="form-control" placeholder="Escriba una respuesta" type="text"><button type="button" class="btn btn-danger delete-row-question">-</button></td></tr>';
+                var template = '<tr><td><input name="answer_'+count_question+'[]" class="form-control" placeholder="Escriba una respuesta" type="text">&emsp;'
+                if(elem == 'Yes')
+                {
+                    template = template + '<input type="number" value="" class="regular-text process_custom_images" id="process_custom_images" name="image_'+count_question+'[]" max="" min="1" step="1"><button class="set_custom_images button" onclick="loadimage()">Set Image ID</button>';
+                } 
+                   template = template + '<button type="button" class="btn btn-danger delete-row-question">-</button></td></tr>';
                 $('#worked tbody').append(template);
             });
          
@@ -681,17 +695,9 @@ function add_3(){
 
     global $wpdb;
     $accion = empty($_GET['accion']);
-    
-
-    $aux  = "SELECT r.`id`,r.`id_pregunta`,p.`pregunta`,r.`respuesta`, s.`post_type`,r.`value` FROM `".$wpdb->prefix.'respuestas`'." AS r,`".$wpdb->prefix.'preguntas`'." AS p, `".$wpdb->prefix.'shortcode`'." AS s WHERE p.`id` = r.`id_pregunta` AND p.`shortcode_id` = s.`id` AND r.`id` =". $_GET['id'];
-   
+    $aux  = "SELECT r.`id`,r.`id_pregunta`,p.`pregunta`,r.`respuesta`, s.`post_type`,r.`value`, r.`image` AS `r_image`,  p.`image` AS `p_image`  FROM `".$wpdb->prefix.'respuestas`'." AS r,`".$wpdb->prefix.'preguntas`'." AS p, `".$wpdb->prefix.'shortcode`'." AS s WHERE p.`id` = r.`id_pregunta` AND p.`shortcode_id` = s.`id` AND r.`id` =". $_GET['id'];  
     $pregunta = $wpdb->get_results( $aux, OBJECT );
     $pregunta = get_object_vars($pregunta[0]);
-
-    $aux2 =  "SELECT `ID`, `post_title` FROM `".$wpdb->prefix.'posts`'." WHERE `post_status` = 'publish' AND `post_type` = '".$pregunta['post_type']."'";
-    $posts = $wpdb->get_results( $aux2, OBJECT );
-    $index = 0;
-
     ?>
     <style type="text/css">
         #respuestas tr td [type=text] {
@@ -743,36 +749,58 @@ function add_3(){
                                                             <?php if($accion){?>
                                                                 <input name="<?php  echo 'respuestas'.$index.'_'.$i; ?>" value="<?php echo $pregunta['respuesta']; ?>" class="form-control" type="hidden"><br>
 
-                                                            <?php  }?>                                                         
+                                                            <?php  }?>      
+
                                                             <?php  
-
-                                                                $i= 1;
-                                                                foreach ($posts as $post) {
-                                                                     $post = get_object_vars($post);
-                                                                      if($i==1){
-                                                                        if($accion)
-                                                                        {
-                                                                            $i ++;
-                                                                            $band = 'checked="checked"';
-                                                                        }
-                                                                        elseif ($post['ID'] == $pregunta['value']) 
-                                                                         {
-                                                                            $i ++;
-                                                                            $band = 'checked="checked"';
-                                                                         } 
-
-                                                                      }
-
-                                                                     echo '<input type="radio" name="value_post" value="'.$post['ID'].'" '.$band.'>'.$post['post_title'].'<br>';
-                                                                     if($band=='checked="checked"'){
-                                                                        unset($band);
-                                                                     }
+                                                           
+                                                                if($accion)
+                                                                {
+                                                                    echo '<input type="radio" name="value_post" value="5" checked="checked" >Correcta<br>';
+                                                                    echo '<input type="radio" name="value_post" value="0" >Incorrecta<br>';
                                                                 }
+                                                                else
+                                                                {
+                                                                    if(empty($pregunta['value']))
+                                                                    {
+                                                                        if($pregunta['value']==5)
+                                                                        {
+                                                                            echo '<input type="radio" name="value_post" value="5" checked="checked" >Correcta<br>';
+                                                                            echo '<input type="radio" name="value_post" value="0" >Incorrecta<br>';
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            echo '<input type="radio" name="value_post" value="5"  >Correcta<br>';
+                                                                            echo '<input type="radio" name="value_post" value="0" checked="checked" >Incorrecta<br>';    
+                                                                        } 
+                                                                    }   
+
+                                                                }    
+                                                           
 
                                                             ?>
 
                                                         </td>
-                                                   </tr>                                                       
+                                                   </tr> 
+                                                   <tr>
+                                                       <td>
+                                                           <?php if(!$accion)
+                                                    
+                                                           {?>
+                                                                        <strong><p>Imagen de preguntas</p></strong><br>
+                                                                         <input type="number"  class="regular-text process_custom_images" id="process_custom_images" name="image_p" max="" min="1" step="1" value="<?php echo intval($pregunta['p_image']); ?>" >
+                                                                         <button class="set_custom_images button" onclick="loadimage()">Agregar Nuevo</button>
+
+                                                                         <strong><p>Imagen de respuesa</p></strong><br>
+                                                                         <input type="number"  class="regular-text process_custom_images" id="process_custom_images" name="image_r" max="" min="1" step="1" value="<?php echo intval($pregunta['r_image']) ; ?>" >
+                                                                         <button class="set_custom_images button" onclick="loadimage()">Agregar Nuevo</button>
+
+
+                                                               <?php 
+
+                                                            }?>
+
+                                                       </td>
+                                                   </tr>                                                      
                                             </tbody>
                                         </table>
                                     </li>

@@ -24,7 +24,9 @@ function submitAsking(functiones,id=''){
               break;
             
             default:
+
                 window.location.href = window.location.href;
+                $("div#preguntas_salvadas").html(data);
                 break;
         } 
         

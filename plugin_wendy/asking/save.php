@@ -19,13 +19,14 @@
 
 					$lastid = $_POST['id'];
 					$preguntas = $_POST['answer_1'];
+					$imagenes = $_POST['image_1'];
 					$i = 0;
 					foreach ((array)$preguntas as $pregunta) {
 
-						$pregunta_new =  $wpdb->insert($wpdb->prefix.'preguntas',array( 'pregunta' => $pregunta, 'shortcode_id' => $lastid ), array( 	'%s', 	'%s' 	) );
+						$pregunta_new =  $wpdb->insert($wpdb->prefix.'preguntas',array( 'pregunta' => $pregunta, 'shortcode_id' => $lastid, 'image' => $imagenes[$i]), array( 	'%s', 	'%s',  '%d' 	) );
+						$i = $i +1;
 					}
 				
-					$_SESSION['asking_shortcode'] = $lastid;
  				
 
 			break;
@@ -33,10 +34,12 @@
 
 					$lastid = $_POST['id'];
 					$preguntas = $_POST['answer_1'];
+					$imagenes = $_POST['image_1'];
 					$i = 0;
 					foreach ((array)$preguntas as $pregunta) {
 
-						$pregunta_new =  $wpdb->insert($wpdb->prefix.'respuestas',array( 'respuesta' => $pregunta, 'id_pregunta' => $lastid ), array( 	'%s', 	'%s' 	) );
+						$pregunta_new =  $wpdb->insert($wpdb->prefix.'respuestas',array( 'respuesta' => $pregunta, 'id_pregunta' => $lastid, 'image' => $imagenes[$i]), array( 	'%s', 	'%s',  '%d' 	) );
+						$i = $i +1;
 					}
 			break;
 		case 'resultado':
@@ -77,6 +80,7 @@
 					</center >';			
 				break;	
 		case 'value_respuesta':
+
 				$wpdb->update( $wpdb->prefix . 'respuestas', 
 				array( 'value' => intval($_POST['value_post']) ), 
 				array( 'id' => intval($_POST['id'])) 
@@ -84,16 +88,27 @@
 				);		
 
 				$wpdb->update( $wpdb->prefix . 'preguntas', 
-				array( 'pregunta' => (string)$_POST['preguntas0_'] ), 
+				array( 'pregunta' => (string)$_POST['preguntas_'] ), 
 				array( 'id' => intval($_POST['id_pregunta'])) 
 				
 				);
 				$wpdb->update( $wpdb->prefix . 'respuestas', 
-				array( 'respuesta' => (string)$_POST['respuestas0_'] ), 
+				array( 'respuesta' => (string)$_POST['respuestas_'] ), 
 				array( 'id' => intval($_POST['id'])) 
 				
 				);
-
+				if(!empty($_POST['image_r']))
+				{
+					$wpdb->update( $wpdb->prefix . 'respuestas', 
+					array( 'image' => intval($_POST['image_r']) ), 
+					array( 'id' => intval($_POST['id'])) 
+				}
+				if(!empty($_POST['image_p']))
+				{
+					$wpdb->update( $wpdb->prefix . 'preguntas', 
+					array( 'image' => intval($_POST['image_p']) ), 
+					array( 'id' => intval($_POST['id_pregunta'])) 	
+				}
 				break;
 
 		case 'configuracion':
