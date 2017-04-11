@@ -1,0 +1,16 @@
+.text-area-style{
+
+    margin-bottom: -30px !important;
+    margin-top: 50px;
+    width: 105% !important;
+
+}
+.btn-lg {
+
+	width: 250px;
+	border: 1px solid #7f7f7f;
+}
+.color-text-asking{
+	color: #7f7f7f;
+	text-align: center;
+}
