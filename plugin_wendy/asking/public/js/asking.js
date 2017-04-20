@@ -17,6 +17,7 @@ function submitAsking(functiones,id=''){
         switch (functiones) {
             case 'configuracion':
                    window.location.href = "../wp-admin/admin.php?page=conasa-asking-settings";
+                   $("div#preguntas_salvadas").html(data);
                 break;
             case 'respuesta_value':
                   window.location.href = "../wp-admin/admin.php?page=conasa-asking-add_2&type_data=respuesta&id=" + id;
@@ -57,6 +58,25 @@ function loadimage()
         }
     }
 }
+function loadimage_input(id,elem_value) {
+  
+  var elem = '#pregunta_imagenes_' + id;
+ // var elem_value =  $(elem).attr("value");
+  var elem_load  ="#load_image_" + id;
+  
+  if(elem_value=='Si'){
+    
+    $(elem_load).addClass("show-load");
+    $(elem_load).removeClass("hiden-load");
+  }
+  else
+  {
+  
+    $(elem_load).addClass("hiden-load");
+    $(elem_load).removeClass("show-load");
+  }
+
+}
 function crud(functiones,id){
      
       console.log('pasar');       
@@ -73,18 +93,6 @@ function crud(functiones,id){
       success :  function(data)
       {
         
-
-       /* if(functiones!='configuracion' || functiones!='editar' )
-        { 
-            
-            window.location.href = window.location.href;
-        }
-        else
-        {
-            window.location.href = "../wp-admin/admin.php?page=conasa-asking-settings"
-
-        } */
-
         switch (functiones) {
             case 'configuracion':
                    window.location.href = "../wp-admin/admin.php?page=conasa-asking-settings";

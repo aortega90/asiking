@@ -6,7 +6,7 @@
 * Version: 1.0
 * Author: Besign
 * Author Besign
-* License: A Asking license name e.g. GPL12
+* License: A Asking
 */
 
 
@@ -30,6 +30,15 @@ function my_custom_fonts() {
             background-color: rgba(250, 235, 215, 0);
             border-color: rgba(127, 255, 212, 0);
             color: #0073AA;
+        }
+        .bottom-space{
+            height: 40px;
+        }
+        .hiden-load{
+            display:none;
+        }
+        .show-load{
+            display: inline-block;
         }
 
   </style>';
@@ -116,8 +125,17 @@ function create_asking_short($atts) /**/
     $aux =  "SELECT * FROM `".$wpdb->prefix.'shortcode`'." WHERE `id` = ".$id;
     $titulo = $wpdb->get_results( $aux, OBJECT ); 
     $titulo = get_object_vars($titulo[0]);
+    $datos  = $titulo;
+    //print_r($datos);
     $titulo = $titulo['titulo'];
     $aux = '1';
+
+
+
+
+
+
+
     echo '    <style>  
                  .carousel-inner > .item > img,
           .carousel-inner > .item > a > img {
@@ -169,7 +187,44 @@ function create_asking_short($atts) /**/
                 background-color:#fff;
                 padding:5px;
             }
-</style>
+                label > input{ /* HIDE RADIO */
+                  visibility: hidden; /* Makes input not-clickable */
+                  position: absolute; /* Remove input from document flow */
+                }
+                label > input + img{ /* IMAGE STYLES */
+                  cursor:pointer;
+                  border:2px solid transparent;
+                }
+                label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
+                  border:2px solid #f00;
+                }                
+
+                label > input + div{ /* IMAGE STYLES */
+                  cursor:pointer;
+                  border:2px solid transparent;
+                }
+                label > input:checked + div{ /* (RADIO CHECKED) IMAGE STYLES */
+                  border:2px solid #f00;
+                }
+                h1,h2,h3,h4,h5,h6,p,div,label,input{
+                    color:#7e7b7d;
+                }
+                .btn-lg{
+                        border: 1px solid #7e7b7d;
+                            text-align: center;
+                }
+                .bgc-halaya-ube, #background-color-titulo{
+                    background-color:#fff;
+                }
+                .sidebar .textwidget {
+                    display: none;
+                }
+                textarea.form-control {
+                    height: auto;
+                    border: solid 1px black !important;
+                    border-radius: 5px !important;
+                }
+
           </style>
 
 <div class="page-container" >
@@ -201,15 +256,16 @@ function create_asking_short($atts) /**/
         <div class="row bgc-halaya-ube">
             <div class="col-sm-4 left-columm-asking">
                 <h1 class="mg-md text-center tc-white">
-                    Define <br>lo que quieres
+                    '.$datos["descripcion_lateral"].'
                 </h1>
 
                 <img src="'.$dirpublic.'/img/LOGOTIPODELNEGATIVO.png" class="center-block" style="width: 100px;" />
             </div>
             <div class="col-sm-8">
                   <div id="productos-para-ti"></div>
-                  <form action="" method="post">
+                  <form action="" method="post" class="form" id="usrform">
                   <input type="hidden" name="type" value="resultado">
+                  <input type="hidden" name="id" value="'.$id.'">
                   <div id="myTest" class="carousel slide" data-interval="500">
 
 
@@ -229,17 +285,75 @@ function create_asking_short($atts) /**/
                                 
                             
                                 echo '<div class="item '.$band.'">
+                                        <div class="row">
                                           <div class="col-sm-2"></div>
                                                 <div class="col-sm-8">
-                                                    <div class="row">';
-                                                        
-                                                        echo '<h4><center><div class="col-sm-12">'.$pregunta['pregunta'].'</div></center></h4>';
+                                                    ';
+                                                    
+                                                    if($pregunta['pregunta_imagen']=='Si'){
+                                                        $url_pregunta = get_post($pregunta['image'],ARRAY_A) ;
+                                                        if(empty($url_pregunta)){
+                                                            $url_pregunta = $dirpublic.'/img/No-image-found.jpg';
+                                                        }
+                                                        else
+                                                        {
+                                                             $url_pregunta = (string)$url_pregunta['guid'];
+                                                        }
+                                                        echo "<center><img src='".$url_pregunta."' ></center>";
+                                                    }
+                                                    
+
+                                                        echo '<h4><div class="row"><center><div class="col-sm-12">'.$pregunta['pregunta'].'</div></center></div></h4>';
                                                        
-                                                        foreach ($respuestas as $respuesta) {
+                                                       if($pregunta['text_extra']=='No'){
+                                                                        $class_next = 'press-next';
+                                                        }
+                                                        echo '<div class="row"> ';
+                                                        
+                                                                foreach ($respuestas as $respuesta) {
+                                                                
                                                                             $respuesta = get_object_vars($respuesta);
-                                                                             echo '<input type="radio" name="pregunta_'.$pregunta['id'].'" value="'.$respuesta['value'].'" class="press-next" >'. $respuesta['respuesta'].'<br>';
+
+                                                                             if($pregunta['respuesta_imagen']=='Si'){
+                                                                                $url_respuesta = get_post($respuesta['image'],ARRAY_A) ;
+                                                                                if(empty($url_respuesta)){
+                                                                                    $url_respuesta = $dirpublic.'/img/No-image-found.jpg';
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                     $url_respuesta = (string)$url_respuesta['guid'];
+                                                                                }
+                                                                                echo '<div class="col-md-6 col-xs-12"> 
+                                                                                     
+                                                                                        <label>
+                                                                                            <input type="radio" name="pregunta_'.$pregunta['id'].'" value="'.$respuesta['value'].'" />
+                                                                                            <img src="'.$url_respuesta.'" class="img-responsive btn-lg '.$class_next.'">
+                                                                                        </label>
+
+
+
+                                                                                     </div>';
+                                                                            }
+                                                                            else{
+                                                                                echo '<div class="col-md-6 col-xs-12"> 
+
+                                                                                            
+                                                                                        <label>
+                                                                                            <input type="radio" name="pregunta_'.$pregunta['id'].'" value="'.$pregunta['value'].'" />
+                                                                                            <div class="btn-lg '.$class_next.'">'.$respuesta['respuesta'].'</div>
+                                                                                        </label>
+
+                                                                                     </div>';
+
+                                                                            }
                                                                           
-                                                                         }  
+                                                                }  
+                                                        echo '</div>';
+                                                                   if($pregunta['text_extra']=='Si'){
+                                                                        echo   '<div class="form-group col-md-12 text-area-style"> <textarea class="form-control"  name="comment_'.$pregunta['id'].'" form="usrform"></textarea></div>';
+                                                                        echo '<center>  <button name="pregunta_'.$pregunta['id'].'" class="press-next btn-lg" style="margin-top: 15vh;">Siguiente </button><center><br> ';
+                                                                   }
+                                                                   unset($class_next);
 
                                                      echo '</div>
                                                  </div>
@@ -373,6 +487,9 @@ function create_table()
           shortcode_id int(11) NOT NULL,
           image varchar(250)  NULL ,
           INDEX shortcode_id (shortcode_id),
+          pregunta_imagen enum('Si','No')  DEFAULT NULL,
+          respuesta_imagen enum('Si','No') DEFAULT NULL,          
+          text_extra enum('Si','No') DEFAULT NULL,       
           PRIMARY KEY ( id ),
           FOREIGN KEY (shortcode_id) REFERENCES ".$wpdb->prefix.'shortcode'."(id) 
           ON DELETE CASCADE 
@@ -400,12 +517,20 @@ function create_table()
     $table_name = $wpdb->prefix . "shortcode";    
     $sql3 = " CREATE TABLE $table_name(
           id int(11)  NOT NULL AUTO_INCREMENT,
-          shortcode varchar(250) NOT NULL,
           post_type varchar(50) NOT NULL,
-          titulo varchar(100) NOT NULL,
+          titulo varchar(150) NOT NULL,
           descripcion varchar(300) NOT NULL,
-          pregunta_imagen enum('Si','No')  DEFAULT NULL,
-          respuesta_imagen enum('Si','No') DEFAULT NULL,
+          descripcion_lateral varchar(300) NOT NULL,
+
+          PRIMARY KEY ( id )
+
+        ) ;";    
+
+    $table_name = $wpdb->prefix . "usuarios";    
+    $sql4 = " CREATE TABLE $table_name(
+          id int(11)  NOT NULL AUTO_INCREMENT,
+          name  varchar(100) NOT NULL,
+          email varchar(100) NOT NULL,
           PRIMARY KEY ( id )
 
         ) ;";
@@ -416,6 +541,7 @@ function create_table()
     dbDelta($sql3);
     dbDelta($sql);
     dbDelta($sql2);
+    dbDelta($sql4);
    
 
 }
@@ -434,6 +560,10 @@ function uninstall_table()
     $wpdb->query($sql);
 
     $table_name = $wpdb->prefix . "shortcode"; 
+    $sql = "DROP TABLE $table_name";
+    $wpdb->query($sql);     
+
+    $table_name = $wpdb->prefix . "usuarios"; 
     $sql = "DROP TABLE $table_name";
     $wpdb->query($sql);  
     
@@ -461,8 +591,7 @@ function conasa_plugin_menu(){
     $add_3   = add_submenu_page('conasa-asking-settings', 'Ajustes plugin Asking','add_3', 'manage_options', 'conasa-asking-add_3', 'add_3'); 
 
 
-    
-    add_action( 'load'. $edit,  'edit'  );
+    add_action( 'load'.$edit,  'edit'  );
     add_action( 'load'.$addnew, 'add'   );
     add_action( 'load'.$delete, 'delete');
     add_action( 'load'.$add_2,  'add_2' );
@@ -498,7 +627,8 @@ function add_2(){
         {
             $dir = site_url().'/wp-admin/admin.php?page=conasa-asking-add_3&id=';   
             $shortcodes =  "SELECT * FROM `".$wpdb->prefix.'respuestas`'." WHERE `id_pregunta` = ".$id_shorcode;
-            $image      =  "SELECT  s.`respuesta_imagen` FROM `".$wpdb->prefix.'preguntas`'." as p, `".$wpdb->prefix.'shortcode`'." as s WHERE p.`shortcode_id` = s.`id` AND p.`id` = ".$id_shorcode;
+            $image      =  "SELECT  p.`respuesta_imagen` FROM `".$wpdb->prefix.'preguntas`'." as p WHERE p.`id` = ".$id_shorcode;
+            
             $aux_ ='respuesta_imagen';
         }    
 
@@ -506,7 +636,8 @@ function add_2(){
         $image      = $wpdb->get_results( $image, OBJECT );
         $image      = get_object_vars($image[0]);
         $image      = $image[$aux_];
-        echo $image;
+        //echo $image.'<br>';
+
     ?>
 
    <table class="wp-list-table widefat fixed striped posts" >
@@ -579,11 +710,11 @@ function add_2(){
   <div class="container" id="questions-all">
         <?php if(empty($pregunta))
         {
-            echo '<input type="hidden" name="type" value="preguntas">';
+            echo '<input type="hidden" name="type" id="type" value="preguntas">';
         }
         else
         {
-            echo '<input type="hidden" name="type" value="respuesta">';
+            echo '<input type="hidden" name="type" id="type" value="respuesta">';
         }?>
         
        
@@ -614,6 +745,7 @@ function add_2(){
                                                         id="botton-less" class="btn btn-blue add-row-question"><?php if(empty($pregunta))
                                                         {
                                                             echo 'Nueva Pregunta';
+
                                                         }
                                                         else
                                                         {
@@ -626,13 +758,42 @@ function add_2(){
                                             <tbody>
                                                 <tr>
                                                     <td>
-                                                        <input name="answer_1[]" placeholder="Escriba una pregunta" class="form-control" type="text">&emsp;
-                                                        <?php if($image == 'Si'){ ?>
+                                                        <br><label><?php if(empty($pregunta))
+                                                        {
+                                                            echo 'Pregunta';
+                                                        }
+                                                        else
+                                                        {
+                                                            echo 'Respuesta';
+                                                        }?></label> <br><br>
+                                                    <input name="answer_1[]" placeholder="Escriba una <?php if(empty($pregunta)){echo 'Pregunta';}else{echo 'Respuesta';}?>" class="form-control" type="text">&emsp;<br>
+                                                        <?php if(empty($pregunta))
+                                                        {?>
+                                                                <label>Pregunta con imagenes </label> <br><br>
+                                                                    <input type="radio" id="pregunta_imagenes_1" name="pregunta_imagenes_1" value="Si" onclick="loadimage_input(1,'Si')" checked="checked">Si&emsp;
+                                                                    <input type="radio" id="pregunta_imagenes_1" name="pregunta_imagenes_1" onclick="loadimage_input(1,'No')" value="No" >No<br>
 
-                                                            <input type="number" value="" class="regular-text process_custom_images" id="process_custom_images" name="image_1[]" max="" min="1" step="1">
-                                                            <button class="set_custom_images button" onclick="loadimage()">Set Image ID</button>
-                                                        <?php }?>
+                                                                <label>Respuestas con imagenes </label> <br><br>
+                                                                        <input type="radio"  name="respuesta_imagenes_1" value="Si" checked="checked" >Si&emsp;
+                                                                        <input type="radio"  name="respuesta_imagenes_1" value="No" >No<br>
+
+                                                                <label>Texto complementario en la respuesta </label> <br><br>
+                                                                        <input type="radio" name="texto_1" value="Si" checked="checked" >Si&emsp;
+                                                                        <input type="radio" name="texto_1" value="No" >No<br><br>
+                                                        <?php } ?>
+
+
+
+                                                       
+
                                                         
+                                                            <div id="load_image_1" class="">
+                                                                <input type="number" value="" class="regular-text process_custom_images" id="process_custom_images" name="image_1[]" max="" min="1" step="1">
+                                                                <button class="set_custom_images button" onclick="loadimage()">Imagen</button>
+                                                            </div>
+
+                                                        
+                                                        <div class="bottom-space"></div>
                                                     </td>
                                                 </tr>                     
                                             </tbody>
@@ -659,8 +820,9 @@ function add_2(){
      <script type="text/javascript">
      $(document).ready(function(){
              var count_question = 1;
-             var countanswer   = 0;   
+             var countanswer   = 1;   
              var elem =  $("#botton-less").attr("value");
+             var type =  $("#type").attr("value");
              
             $('.new-question .add-question').click(function () {
                     countanswer++;
@@ -672,19 +834,37 @@ function add_2(){
             // Control de respuestas
              $('#worked .add-row-question').click(function () {
                     countanswer++;
-                var template = '<tr><td><input name="answer_'+count_question+'[]" class="form-control" placeholder="Escriba una respuesta" type="text">&emsp;'
+                    var yes ='"Si"';
+                    var not = '"No"';
+                
+                if(type =='preguntas')
+                {
+                   
+                   var template = '<tr><td><label>Pregunta</label><br><input name="answer_1[]" class="form-control" placeholder="Escriba una pregunta" type="text">&emsp;'
+                        template = template + '<br><label>Pregunta con imagenes </label> <br><br><input type="radio" id="pregunta_imagenes_'+countanswer+'" name="pregunta_imagenes_'+countanswer+'" value="Si" checked="checked" onclick="loadimage_input('+countanswer+',`Si`)" >Si&emsp; <input type="radio" id="pregunta_imagenes_'+countanswer+'" name="pregunta_imagenes_'+countanswer+'" value="No"  onclick="loadimage_input('+countanswer+',`No`)" >No<br><label>Respuestas con imagenes </label> <br><br><input type="radio" name="respuesta_imagenes_'+countanswer+'" value="Si" checked="checked" >Si&emsp;<input type="radio" name="respuesta_imagenes_'+countanswer+'" value="No" >No<br><label>Texto complementario en la respuesta </label> <br><br><input type="radio" name="texto_'+countanswer+'" value="Si" checked="checked">Si&emsp;<input type="radio" name="texto_'+countanswer+'" value="No" >No<br><br>';
+                }
+                else{
+                    var template = '<tr><td><label>Respuesta</label><br><input name="answer_1[]" class="form-control" placeholder="Escriba una respuesta" type="text">&emsp;'
+                }
                 if(elem == 'Yes')
                 {
-                    template = template + '<input type="number" value="" class="regular-text process_custom_images" id="process_custom_images" name="image_'+count_question+'[]" max="" min="1" step="1"><button class="set_custom_images button" onclick="loadimage()">Set Image ID</button>';
+                    template = template + '<div id="load_image_'+countanswer+'" class="" ><input type="number" value="" class="regular-text process_custom_images" id="process_custom_images" name="image_1[]" max="" min="1" step="1"><button class="set_custom_images button" onclick="loadimage()">Imagen</button></div>';
                 } 
-                   template = template + '<button type="button" class="btn btn-danger delete-row-question">-</button></td></tr>';
+                   template = template + '<br><button type="button" class="btn btn-danger delete-row-question">  BORRAR  </button><div class="bottom-space"></div></td></tr>';
                 $('#worked tbody').append(template);
-            });
-         
-            $('#worked').on('click', '.delete-row-question', function () {
+
+                
+
+            }); 
+
+             $('#worked').on('click', '.delete-row-question', function () {
                 $(this).parent().parent().remove();
                 countanswer--;
             }); 
+         
+            
+
+
 
      });
      </script>
@@ -695,9 +875,10 @@ function add_3(){
 
     global $wpdb;
     $accion = empty($_GET['accion']);
-    $aux  = "SELECT r.`id`,r.`id_pregunta`,p.`pregunta`,r.`respuesta`, s.`post_type`,r.`value`, r.`image` AS `r_image`,  p.`image` AS `p_image`  FROM `".$wpdb->prefix.'respuestas`'." AS r,`".$wpdb->prefix.'preguntas`'." AS p, `".$wpdb->prefix.'shortcode`'." AS s WHERE p.`id` = r.`id_pregunta` AND p.`shortcode_id` = s.`id` AND r.`id` =". $_GET['id'];  
+    $aux  = "SELECT r.`id`,r.`id_pregunta`,p.`pregunta`,r.`respuesta`, s.`post_type`,r.`value`, p.`pregunta_imagen`, p.`respuesta_imagen`, p.`text_extra` ,r.`image` AS `r_image`,  p.`image` AS `p_image`  FROM `".$wpdb->prefix.'respuestas`'." AS r,`".$wpdb->prefix.'preguntas`'." AS p, `".$wpdb->prefix.'shortcode`'." AS s WHERE p.`id` = r.`id_pregunta` AND p.`shortcode_id` = s.`id` AND r.`id` =". $_GET['id'];  
     $pregunta = $wpdb->get_results( $aux, OBJECT );
     $pregunta = get_object_vars($pregunta[0]);
+    //print_r($pregunta);
     ?>
     <style type="text/css">
         #respuestas tr td [type=text] {
@@ -716,14 +897,12 @@ function add_3(){
         <input type="hidden" name="type" value="value_respuesta">
           <div id="dashboard_right_now" class="postbox ">
                         <h2 class="hndle ui-sortable-handle">
-                            <span>Agregar Respuestas</span>
+                            <span><?php  if($accion){echo 'Agregar Respuestas';}else{echo 'Editar Contenido';}?></span>
                         </h2>
                         <div class="inside">
                             <div class="main">
                                 <ul>
                                     <li class="post-count">
-
-                                     
 
                                         <table class="table table-hover respuestas" id="worked">
                                             <thead>
@@ -771,8 +950,52 @@ function add_3(){
                                                                         {
                                                                             echo '<input type="radio" name="value_post" value="5"  >Correcta<br>';
                                                                             echo '<input type="radio" name="value_post" value="0" checked="checked" >Incorrecta<br>';    
+                                                                        }                                                                    
+                                                                    
+                                                                        
+                                                                 }
+
+                                                                        if($pregunta['pregunta_imagen']=='Si')
+                                                                        {
+                                                                            echo '<label>Pregunta con imagenes </label> <br><br>';
+                                                                            echo '<input type="radio" id="pregunta_imagenes_1" name="pregunta_imagenes_1" value="Si" checked="checked" onclick="loadimage_input(1,`Si`)">Si&emsp;';
+                                                                            echo '<input type="radio" id="pregunta_imagenes_1" name="pregunta_imagenes_1" value="No" onclick="loadimage_input(1,`No`)">No<br>';
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            echo '<label>Pregunta con imagenes </label> <br><br>';
+                                                                            echo '<input type="radio" id="pregunta_imagenes_1" name="pregunta_imagenes_1" value="Si" onclick="loadimage_input(1,`Si`)">Si&emsp;';
+                                                                            echo '<input type="radio" id="pregunta_imagenes_1" name="pregunta_imagenes_1" value="No" checked="checked" onclick="loadimage_input(1,`No`)" >No<br>';  
+                                                                            $class =  'hiden-load';
                                                                         } 
-                                                                    }   
+
+                                                                        if($pregunta['respuesta_imagen']=='Si')
+                                                                        {
+                                                                            echo '<label>Respuestas con imagenes</label> <br><br>';
+                                                                            echo '<input type="radio"  name="respuesta_imagenes_1"  value="Si" checked="checked" onclick="loadimage_input(2,`Si`)">Si&emsp;';
+                                                                            echo '<input type="radio"  name="respuesta_imagenes_1"  value="No" onclick="loadimage_input(2,`No`)" >No<br>';
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            echo '<label>Respuestas con imagenes</label> <br><br>';
+                                                                            echo '<input type="radio"  name="respuesta_imagenes_1" value="Si" checked="checked" onclick="loadimage_input(2,`Si`)" >Si&emsp;';
+                                                                            echo '<input type="radio"  name="respuesta_imagenes_1" value="No" onclick="loadimage_input(2,`No`)" >No<br>';   
+                                                                            $class =  'hiden-load'; 
+                                                                        }                                                                         
+
+                                                                        if($pregunta['text_extra']=='Si')
+                                                                        {
+                                                                            echo '<label>Texto complementario en la respuesta </label> <br><br>';
+                                                                            echo '<input type="radio" name="texto_1" value="Si" checked="checked">Si&emsp;';
+                                                                            echo '<input type="radio" name="texto_1" value="No" >No<br>';
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            echo '<label>Texto complementario en la respuesta </label> <br><br>';
+                                                                            echo '<input type="radio" name="texto_1" value="Si" checked="checked" >Si&emsp;';
+                                                                            echo '<input type="radio" name="texto_1" value="No" >No<br><br>';    
+                                                                        } 
+
 
                                                                 }    
                                                            
@@ -785,14 +1008,18 @@ function add_3(){
                                                        <td>
                                                            <?php if(!$accion)
                                                     
-                                                           {?>
-                                                                        <strong><p>Imagen de preguntas</p></strong><br>
-                                                                         <input type="number"  class="regular-text process_custom_images" id="process_custom_images" name="image_p" max="" min="1" step="1" value="<?php echo intval($pregunta['p_image']); ?>" >
-                                                                         <button class="set_custom_images button" onclick="loadimage()">Agregar Nuevo</button>
-
-                                                                         <strong><p>Imagen de respuesa</p></strong><br>
-                                                                         <input type="number"  class="regular-text process_custom_images" id="process_custom_images" name="image_r" max="" min="1" step="1" value="<?php echo intval($pregunta['r_image']) ; ?>" >
-                                                                         <button class="set_custom_images button" onclick="loadimage()">Agregar Nuevo</button>
+                                                           {?>          <div id="load_image_1" class="<?php echo $class ?>">
+                                                                            <strong><p>Imagen de preguntas</p></strong><br>
+                                                                             <input type="number"  class="regular-text process_custom_images" id="process_custom_images" name="image_p" max="" min="1" step="1" value="<?php echo intval($pregunta['p_image']); ?>" >
+                                                                            <button class="set_custom_images button" onclick="loadimage()">Imagen</button>
+                                                                         </div>
+                                                                            
+                                                                         <div id="load_image_2" class="<?php echo $class ?>">
+                                                                             <strong><p>Imagen de respuesa</p></strong><br>
+                                                                             <input type="number"  class="regular-text process_custom_images" id="process_custom_images" name="image_r" max="" min="1" step="1" value="<?php echo intval($pregunta['r_image']) ; ?>" >
+                                                                             <button class="set_custom_images button" onclick="loadimage()">Imagen</button>
+                                                                         </div>
+                                                                         
 
 
                                                                <?php 
@@ -869,7 +1096,12 @@ function add(){
    $dir = site_url().'/wp-admin/admin.php?page=conasa-asking-add_2&type=';
    admin_url( 'admin.php?page=wpcf7&post='  );
    
-   $id = $_GET['id'];
+   
+   if(!empty($_GET['id']))
+   {
+        $id = $_GET['id'];
+   }
+
    $status = empty($id);
    if(!$status)
    {
@@ -892,48 +1124,20 @@ function add(){
     </style>
     
 <form id="usrform" method="post">   
+<div id="preguntas_salvadas"></div>
     <input type="hidden" name="type" value="configuracion"> 
     <div id="normal-sortables" class="meta-box-sortables ui-sortable  post_type_choice">
         <div id="dashboard_right_now" class="postbox ">
                 <h2 class="hndle ui-sortable-handle">
-                    <span>Eligir tipo de contenido</span>
+                    <span>Id de la respuesta correcta </span>
                 </h2>
             <div class="inside">
                 <div class="main">
                      <ul>
                         <?php 
-                             $args = array(
-                                  'public'   => true,
-                                   '_builtin' => false
-                                );
-
-                                $output = 'names'; // names or objects, note names is the default
-                                $operator = 'and'; // 'and' or 'or'
-
-                                $i= 1;
-
-                                $post_types = get_post_types( $args, $output, $operator ); 
-                                foreach ( $post_types  as $post_type ) {
-                                        if($status)
-                                        {
-                                            $i ++;
-                                            $band = 'checked="checked"';
-                                        }
-                                        elseif ($post['ID'] == $pregunta['value']) 
-                                        {
-                                            $i ++;
-                                            $band = ' checked="checked" ';
-                                        } 
-                                        echo '<li>';
-                                            
-                                            echo '  <input type="radio"  name="type_of_post" value="'.$post_type.'"'.$band.'> '.$post_type;
-                                        echo '</li>';
-                                        
-                                        if(!empty($band)){
-                                            unset($band);
-                                        }
-                                }
-
+                              echo '<li>';
+                                    echo '  <input type="text"  name="type_of_post" placeholder="Example: 13"> ';
+                              echo '</li>';
                        ?>                      
                     </ul>
                 </div>
@@ -954,41 +1158,24 @@ function add(){
                             <label>Titulo</label><br><br>
                             <input type="text" name="titulo" <?php if(!$status){ echo "value='".$form['titulo']."'"; }else{echo 'placeholder="titulo"';} ?> >
                         </li>                        
-
+                        <li style="height: 100px;"></li>
                         <li>
                             <label>Descripcion </label><br><br>
                             <textarea rows="4" cols="50" name="comment" form="usrform" <?php if($status){ echo 'placeholder="Descripcion..."';}?> > <?php if(!$status){ 
                                 echo $form['descripcion'];
                                 }?></textarea>
-                        </li>                        
+                        </li>                         
 
                         <li>
-                            <label>Preguntas con imagenes </label> <br><br>
-                            <input type="radio" name="pregunta_imagenes" value="Si" <?php if(!$status){ 
-                                if($form['pregunta_imagen']=='Si'){echo 'checked="checked"'; }
-                                }?> >si
-                            &emsp;
-                            <input type="radio" name="pregunta_imagenes" value="No" 
-                            <?php if(!$status)
-                                  { 
-                                    if($form['pregunta_imagen']=='No')
-                                    {
-                                        echo 'checked="checked"'; 
-                                    }
-                                   }
-                                   else{echo 'checked="checked"';}
-                                ?> >no 
-                        </li>
+                            <label>Descripcion lateral del tema </label><br><br>
+                            <textarea rows="4" cols="50" name="comment_lateral" form="usrform" <?php if($status){ echo 'placeholder="Descripcion..."';}?> > <?php if(!$status){ 
+                                echo $form['descripcion_lateral'];
+                                }?></textarea>
+                        </li>                        
+                        <li></li>
+                   
                         <li>
-                            <label>Respuestas con imagenes </label> <br><br>
-                            <input type="radio" name="respuestas_imagenes" value="Si" <?php if(!$status){ 
-                                if($form['respuesta_imagen']=='Si'){echo 'checked="checked"'; }
-                                }?> >si
-                            &emsp;
-                            <input type="radio" name="respuestas_imagenes" value="No"  <?php if(!$status){ 
-                                if($form['respuesta_imagen']=='No'){echo 'checked="checked"'; }
-                                }else{echo 'checked="checked"';}
-                                ?> >no 
+                       
                         </li>
                         <li></li>
                         <li style="text-align: right;">
@@ -1010,6 +1197,7 @@ function add(){
         </div>
     </div>   
 </form> 
+<div id="preguntas_salvadas"></div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <?php
 } 
